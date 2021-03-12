@@ -370,6 +370,8 @@ ServerProxy::onClipboardChanged(ClipboardID id, const IClipboard* clipboard)
 
 void
 ServerProxy::clientMouseMove(SInt32 x, SInt32 y, UInt32 t, UInt32 tc) {
+	m_t = t;
+	m_tc = tc;
 	m_client->mouseMove(x, y);
 }
 
@@ -730,6 +732,7 @@ ServerProxy::mouseMove()
         m_dxMouse = 0;
         m_dyMouse = 0;
     }
+
 
     SInt32 lag = (tc - m_tc) - (t - m_t);
     LOG((CLOG_DEBUG2 "recv mouse move %d,%d,%d,%d,%d", x, y, t, tc, lag));
