@@ -215,7 +215,8 @@ extern const char*        kMsgDMouseDown;
 extern const char*        kMsgDMouseUp;
 
 // mouse moved:  primary -> secondary
-// $1 = x, $2 = y.  x,y are absolute screen coordinates.
+// $1 = x, $2 = y, $3 = t.  x,y are absolute screen coordinates.
+// t is time of the event on primary, as low 32 bits of micros since epoch.
 extern const char*        kMsgDMouseMove;
 
 // relative mouse move:  primary -> secondary

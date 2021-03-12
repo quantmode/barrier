@@ -77,6 +77,8 @@ private:
     void                resetKeepAliveAlarm();
     void                setKeepAliveRate(double);
 
+    void 				clientMouseMove(SInt32 x, SInt32 y, UInt32 t);
+
     // modifier key translation
     KeyID                translateKey(KeyID) const;
     KeyModifierMask            translateModifierMask(KeyModifierMask) const;
@@ -118,8 +120,8 @@ private:
     bool                m_compressMouse;
     bool                m_compressMouseRelative;
     SInt32                m_xMouse, m_yMouse;
+    UInt32              m_tMouse;
     SInt32                m_dxMouse, m_dyMouse;
-
     bool                m_ignoreMouse;
 
     KeyModifierID        m_modifierTranslationTable[kKeyModifierIDLast];
@@ -129,4 +131,12 @@ private:
 
     MessageParser        m_parser;
     IEventQueue*        m_events;
+
+    // for tracking server mouse velocity to ameliorate lag.
+    // put these in their own class when complete.
+
+    // server x and y mouse velocity
+    double m_vx, m_vy;
+    // the server mouse coords and time at the last velocity estimate
+    UInt32 m_x, m_y, m_t;
 };

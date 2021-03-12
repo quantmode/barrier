@@ -368,11 +368,16 @@ ServerProxy::onClipboardChanged(ClipboardID id, const IClipboard* clipboard)
 }
 
 void
+ServerProxy::clientMouseMove(SInt32 x, SInt32 y, UInt32 t) {
+	m_client->mouseMove(x, y);
+}
+
+void
 ServerProxy::flushCompressedMouse()
 {
     if (m_compressMouse) {
         m_compressMouse = false;
-        m_client->mouseMove(m_xMouse, m_yMouse);
+        clientMouseMove(m_xMouse, m_yMouse, m_tMouse);
     }
     if (m_compressMouseRelative) {
         m_compressMouseRelative = false;
@@ -696,7 +701,8 @@ ServerProxy::mouseMove()
     // parse
     bool ignore;
     SInt16 x, y;
-    ProtocolUtil::readf(m_stream, kMsgDMouseMove + 4, &x, &y);
+    UInt32 t;
+    ProtocolUtil::readf(m_stream, kMsgDMouseMove + 4, &x, &y, &t);
 
     // note if we should ignore the move
     ignore = m_ignoreMouse;
@@ -712,14 +718,15 @@ ServerProxy::mouseMove()
         ignore    = true;
         m_xMouse  = x;
         m_yMouse  = y;
+        m_tMouse  = t;
         m_dxMouse = 0;
         m_dyMouse = 0;
     }
-    LOG((CLOG_DEBUG2 "recv mouse move %d,%d", x, y));
+    LOG((CLOG_DEBUG2 "recv mouse move %d,%d,%d", x, y, t));
 
     // forward
     if (!ignore) {
-        m_client->mouseMove(x, y);
+        clientMouseMove(x, y, t);
     }
 }
 

@@ -26,6 +26,7 @@
 #include "base/TMethodEventJob.h"
 
 #include <cstring>
+#include <chrono>
 
 //
 // ClientProxy1_0
@@ -334,8 +335,12 @@ ClientProxy1_0::mouseUp(ButtonID button)
 void
 ClientProxy1_0::mouseMove(SInt32 xAbs, SInt32 yAbs)
 {
-    LOG((CLOG_DEBUG2 "send mouse move to \"%s\" %d,%d", getName().c_str(), xAbs, yAbs));
-    ProtocolUtil::writef(getStream(), kMsgDMouseMove, xAbs, yAbs);
+    // event time as low 32 bits of microseconds since epoch
+    using namespace std::chrono;
+    UInt32 time = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+
+    LOG((CLOG_DEBUG2 "send mouse move to \"%s\" %d,%d,%d", getName().c_str(), xAbs, yAbs, time));
+    ProtocolUtil::writef(getStream(), kMsgDMouseMove, xAbs, yAbs, time);
 }
 
 void
