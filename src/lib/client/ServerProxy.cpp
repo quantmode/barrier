@@ -33,6 +33,7 @@
 #include "base/XBase.h"
 
 #include <memory>
+#include <chrono>
 
 //
 // ServerProxy
@@ -368,7 +369,7 @@ ServerProxy::onClipboardChanged(ClipboardID id, const IClipboard* clipboard)
 }
 
 void
-ServerProxy::clientMouseMove(SInt32 x, SInt32 y, UInt32 t) {
+ServerProxy::clientMouseMove(SInt32 x, SInt32 y, UInt32 t, UInt32 tc) {
 	m_client->mouseMove(x, y);
 }
 
@@ -377,7 +378,7 @@ ServerProxy::flushCompressedMouse()
 {
     if (m_compressMouse) {
         m_compressMouse = false;
-        clientMouseMove(m_xMouse, m_yMouse, m_tMouse);
+        clientMouseMove(m_xMouse, m_yMouse, m_tMouse, m_tcMouse);
     }
     if (m_compressMouseRelative) {
         m_compressMouseRelative = false;
@@ -704,6 +705,12 @@ ServerProxy::mouseMove()
     UInt32 t;
     ProtocolUtil::readf(m_stream, kMsgDMouseMove + 4, &x, &y, &t);
 
+    // our time
+    // event time as low 32 bits of microseconds since epoch
+    // TODO: repeated in ClientProxy - include in velocity class when refactored
+    using namespace std::chrono;
+    UInt32 tc = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+
     // note if we should ignore the move
     ignore = m_ignoreMouse;
 
@@ -719,14 +726,17 @@ ServerProxy::mouseMove()
         m_xMouse  = x;
         m_yMouse  = y;
         m_tMouse  = t;
+        m_tcMouse = tc;
         m_dxMouse = 0;
         m_dyMouse = 0;
     }
-    LOG((CLOG_DEBUG2 "recv mouse move %d,%d,%d", x, y, t));
+
+    SInt32 lag = (tc - m_tc) - (t - m_t);
+    LOG((CLOG_DEBUG2 "recv mouse move %d,%d,%d,%d,%d", x, y, t, tc, lag));
 
     // forward
     if (!ignore) {
-        clientMouseMove(x, y, t);
+        clientMouseMove(x, y, t, tc);
     }
 }
 

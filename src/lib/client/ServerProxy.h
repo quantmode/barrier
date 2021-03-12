@@ -77,7 +77,7 @@ private:
     void                resetKeepAliveAlarm();
     void                setKeepAliveRate(double);
 
-    void 				clientMouseMove(SInt32 x, SInt32 y, UInt32 t);
+    void 				clientMouseMove(SInt32 x, SInt32 y, UInt32 t, UInt32 tc);
 
     // modifier key translation
     KeyID                translateKey(KeyID) const;
@@ -120,7 +120,7 @@ private:
     bool                m_compressMouse;
     bool                m_compressMouseRelative;
     SInt32                m_xMouse, m_yMouse;
-    UInt32              m_tMouse;
+    UInt32              m_tMouse, m_tcMouse;
     SInt32                m_dxMouse, m_dyMouse;
     bool                m_ignoreMouse;
 
@@ -137,6 +137,8 @@ private:
 
     // server x and y mouse velocity
     double m_vx, m_vy;
-    // the server mouse coords and time at the last velocity estimate
+    // server mouse coords and time at the last velocity estimate
     UInt32 m_x, m_y, m_t;
+    // client time at the last velocity estimate
+    UInt32 m_tc;
 };
